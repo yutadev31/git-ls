@@ -1,3 +1,4 @@
+use colored::Colorize;
 use regex::Regex;
 use std::{fs, path::PathBuf};
 
@@ -55,4 +56,32 @@ pub fn get_git_url(url: &str) -> Option<GitUrl> {
     }
 
     return None;
+}
+
+pub fn print_ls_item(path: &str, is_repo: bool, name: Option<String>, url: Option<GitUrl>) {
+    if !is_repo {
+        println!("{}", path.green());
+        return;
+    }
+
+    match url {
+        None => {
+            println!("{}", path.red());
+        }
+        Some(url) => {
+            let name = match name {
+                None => String::new(),
+                Some(s) => format!("{:>9}{}", s.red(), ":".white()),
+            };
+
+            let url = format!(
+                "{:>10}{}/{}/{}",
+                name.red(),
+                url.domain.blue(),
+                url.user.yellow(),
+                url.repo.green()
+            );
+            println!("{:<30}{}", path.red(), url)
+        }
+    }
 }

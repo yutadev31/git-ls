@@ -1,48 +1,26 @@
 mod utils;
-use std::{collections::HashMap, env::args, path::PathBuf};
+use std::{collections::HashMap, path::PathBuf};
 
-use colored::Colorize;
+use clap::Parser;
 use git2::Repository;
+use utils::print_ls_item;
 
-use crate::utils::{get_dir_items, get_git_url, home_dir_mark, GitUrl};
+use crate::utils::{get_dir_items, get_git_url, home_dir_mark};
 
-fn print_ls_item(path: &str, is_repo: bool, name: Option<String>, url: Option<GitUrl>) {
-    if !is_repo {
-        println!("{}", path.green());
-        return;
-    }
+/// Simple program to greet a person
+#[derive(Parser, Debug)]
+#[command(version, about, long_about = None)]
+struct Args {
+    #[arg(default_value_t = String::from("."))]
+    path: String,
 
-    match url {
-        None => {
-            println!("{}", path.red());
-        }
-        Some(url) => {
-            let name = match name {
-                None => String::new(),
-                Some(s) => format!("{}{}", s.red(), ":".white()),
-            };
-
-            let url = format!(
-                "{}{}/{}/{}",
-                name.red(),
-                url.domain.blue(),
-                url.user.yellow(),
-                url.repo.green()
-            );
-            println!("{:<30}{}", path.red(), url)
-        }
-    }
+    #[arg(short('r'), long, default_value_t = false)]
+    repository_only: bool,
 }
 
 fn main() {
-    let args = args();
-    let args: Vec<String> = args.collect();
-
-    let path = if args.len() < 3 {
-        "./"
-    } else {
-        args[2].as_str()
-    };
+    let args = Args::parse();
+    let path = args.path.as_str();
 
     let mut paths: Vec<PathBuf> = get_dir_items(path);
     paths.sort_by(|a, b| a.to_str().cmp(&b.to_str()));
@@ -55,6 +33,9 @@ fn main() {
         let repo = match Repository::open(path) {
             Ok(data) => data,
             Err(_) => {
+                if args.repository_only {
+                    continue;
+                }
                 print_ls_item(dir_path.as_str(), false, None, None);
                 continue;
             }
