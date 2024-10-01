@@ -80,15 +80,5 @@ fn main() {
 
             dir_path = String::new();
         }
-
-        // let remote = match repo.find_remote("origin") {
-        //     Ok(data) => data,
-        //     Err(_) => {
-        //         print_ls_item(dir_path.as_str(), true, None);
-        //         continue;
-        //     }
-        // };
-
-        // let url = remote.url().unwrap();
     }
 }
