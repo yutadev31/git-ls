@@ -71,11 +71,11 @@ pub fn print_ls_item(path: &str, is_repo: bool, name: Option<String>, url: Optio
         Some(url) => {
             let name = match name {
                 None => String::new(),
-                Some(s) => format!("{:>9}{}", s.red(), ":".white()),
+                Some(s) => format!("{:>7}{}", s.red(), ":".white()),
             };
 
             let url = format!(
-                "{:>10}{}/{}/{}",
+                "{:>8}{}/{}/{}",
                 name.red(),
                 url.domain.blue(),
                 url.user.yellow(),

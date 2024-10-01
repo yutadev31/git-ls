@@ -16,10 +16,18 @@ struct Args {
 
     #[arg(short('r'), long, default_value_t = false)]
     repository_only: bool,
+
+    #[arg(short('d'), long, default_value_t = String::new())]
+    domain: String,
+
+    #[arg(short('u'), long, default_value_t = String::new())]
+    user: String,
 }
 
 fn main() {
     let args = Args::parse();
+    let remote_only = !args.domain.is_empty() || !args.user.is_empty();
+    let repository_only = args.repository_only || remote_only;
     let path = args.path.as_str();
 
     let mut paths: Vec<PathBuf> = get_dir_items(path);
@@ -33,7 +41,7 @@ fn main() {
         let repo = match Repository::open(path) {
             Ok(data) => data,
             Err(_) => {
-                if args.repository_only {
+                if repository_only {
                     continue;
                 }
                 print_ls_item(dir_path.as_str(), false, None, None);
@@ -50,15 +58,18 @@ fn main() {
         }
 
         for (name, url) in &remotes {
-            let name = if remotes.len() == 1 {
-                None
-            } else {
-                Some(name.to_string())
-            };
-
-            match get_git_url(url) {
+            let url = get_git_url(url);
+            match url {
                 Some(url) => {
-                    print_ls_item(dir_path.as_str(), true, name, Some(url));
+                    if !args.domain.is_empty() && !args.domain.eq(&url.domain) {
+                        continue;
+                    }
+
+                    if !args.user.is_empty() && !args.user.eq(&url.user) {
+                        continue;
+                    }
+
+                    print_ls_item(dir_path.as_str(), true, Some(name.to_string()), Some(url));
                 }
                 None => {
                     print_ls_item(dir_path.as_str(), false, None, None);
