@@ -45,8 +45,6 @@ pub fn get_git_url(url: &str) -> Option<GitUrl> {
         let repo = repo_re.captures(url).unwrap();
         let user = repo.name("user").unwrap().as_str();
         let repo = repo.name("repo").unwrap().as_str();
-        // println!("domain: {}", domain);
-        // println!("repo: {}", repo);
 
         return Some(GitUrl {
             domain: domain.to_string(),
