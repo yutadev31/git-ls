@@ -17,8 +17,14 @@ fn print_ls_item(path: &str, is_repo: bool, name: Option<String>, url: Option<Gi
             println!("{}", path.red());
         }
         Some(url) => {
+            let name = match name {
+                None => String::new(),
+                Some(s) => format!("{}{}", s.red(), ":".white()),
+            };
+
             let url = format!(
-                "{}/{}/{}",
+                "{}{}/{}/{}",
+                name.red(),
                 url.domain.blue(),
                 url.user.yellow(),
                 url.repo.green()
