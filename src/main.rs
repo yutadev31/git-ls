@@ -1,12 +1,12 @@
 mod utils;
-use std::{env::args, path::PathBuf};
+use std::{collections::HashMap, env::args, path::PathBuf};
 
 use colored::Colorize;
 use git2::Repository;
 
 use crate::utils::{get_dir_items, get_git_url, home_dir_mark, GitUrl};
 
-fn print_ls_item(path: &str, is_repo: bool, url: Option<GitUrl>) {
+fn print_ls_item(path: &str, is_repo: bool, name: Option<String>, url: Option<GitUrl>) {
     if !is_repo {
         println!("{}", path.green());
         return;
@@ -44,33 +44,51 @@ fn main() {
     for path in paths {
         let dir_path = path.clone();
         let dir_path = dir_path.to_str().unwrap();
-        let dir_path = home_dir_mark(dir_path);
+        let mut dir_path = home_dir_mark(dir_path);
 
         let repo = match Repository::open(path) {
             Ok(data) => data,
             Err(_) => {
-                print_ls_item(dir_path.as_str(), false, None);
+                print_ls_item(dir_path.as_str(), false, None, None);
                 continue;
             }
         };
 
-        let remote = match repo.find_remote("origin") {
-            Ok(data) => data,
-            Err(_) => {
-                print_ls_item(dir_path.as_str(), true, None);
-                continue;
-            }
-        };
-
-        let url = remote.url().unwrap();
-
-        match get_git_url(url) {
-            Some(url) => {
-                print_ls_item(dir_path.as_str(), true, Some(url));
-            }
-            None => {
-                print_ls_item(dir_path.as_str(), false, None);
-            }
+        let remote_names = repo.remotes().unwrap();
+        let remote_names: Vec<&str> = remote_names.iter().map(|s| s.unwrap()).collect();
+        let mut remotes: HashMap<String, String> = HashMap::new();
+        for name in remote_names {
+            let url = repo.find_remote(name).unwrap().url().unwrap().to_string();
+            remotes.insert(name.to_string(), url);
         }
+
+        for (name, url) in &remotes {
+            let name = if remotes.len() == 1 {
+                None
+            } else {
+                Some(name.to_string())
+            };
+
+            match get_git_url(url) {
+                Some(url) => {
+                    print_ls_item(dir_path.as_str(), true, name, Some(url));
+                }
+                None => {
+                    print_ls_item(dir_path.as_str(), false, None, None);
+                }
+            }
+
+            dir_path = String::new();
+        }
+
+        // let remote = match repo.find_remote("origin") {
+        //     Ok(data) => data,
+        //     Err(_) => {
+        //         print_ls_item(dir_path.as_str(), true, None);
+        //         continue;
+        //     }
+        // };
+
+        // let url = remote.url().unwrap();
     }
 }
