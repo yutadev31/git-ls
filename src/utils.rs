@@ -58,7 +58,7 @@ pub fn get_git_url(url: &str) -> Option<GitUrl> {
 
 pub fn print_ls_item(path: &str, is_repo: bool, name: Option<String>, url: Option<GitUrl>) {
     if !is_repo {
-        println!("{}", path.green());
+        println!("{}", path.white());
         return;
     }
 
