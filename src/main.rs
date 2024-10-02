@@ -8,7 +8,6 @@ use utils::print_ls_item;
 
 use crate::utils::{get_dir_items, get_git_url, home_dir_mark};
 
-/// Simple program to greet a person
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct Args {
