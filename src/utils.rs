@@ -1,26 +1,25 @@
+use anyhow::{Context, Result};
 use colored::Colorize;
 use regex::Regex;
 use std::{fs, path::PathBuf};
 
-pub fn home_dir_mark(path: &str) -> String {
-    path.replace(
-        dirs::home_dir()
-            .expect("Error: failed to get home directory")
-            .to_str()
-            .unwrap(),
-        "~",
-    )
+pub fn home_dir_mark(path: &str) -> Result<String> {
+    let home_dir = dirs::home_dir().context("Failed to get home directory")?;
+    let path = path.replace(home_dir.to_str().unwrap(), "~");
+
+    Ok(path)
 }
 
-pub fn get_dir_items(path: &str) -> Vec<PathBuf> {
-    let dir = fs::read_dir(path).unwrap();
+pub fn get_dir_items(path: &str) -> Result<Vec<PathBuf>> {
+    let dir = fs::read_dir(path).context("Failed to read directory")?;
     let mut files: Vec<PathBuf> = Vec::new();
 
     for item in dir.into_iter() {
-        files.push(item.unwrap().path());
+        let item = item.unwrap().path();
+        files.push(item);
     }
 
-    files
+    Ok(files)
 }
 
 pub struct GitUrl {
@@ -32,6 +31,7 @@ pub struct GitUrl {
 pub fn get_git_url(url: &str) -> Option<GitUrl> {
     let git_re =
         Regex::new(r"git\@([a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]*\.)+[a-zA-Z]{2,}\:").unwrap();
+
     let https_re =
         Regex::new(r"^https?://([a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]*\.)+[a-zA-Z]{2,}").unwrap();
 

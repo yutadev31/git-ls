@@ -1,6 +1,7 @@
 mod utils;
 use std::{collections::HashMap, path::PathBuf};
 
+use anyhow::Result;
 use clap::Parser;
 use git2::Repository;
 use utils::print_ls_item;
@@ -24,19 +25,20 @@ struct Args {
     user: String,
 }
 
-fn main() {
+fn main() -> Result<()> {
     let args = Args::parse();
     let remote_only = !args.domain.is_empty() || !args.user.is_empty();
     let repository_only = args.repository_only || remote_only;
     let path = args.path.as_str();
 
-    let mut paths: Vec<PathBuf> = get_dir_items(path);
+    let mut paths: Vec<PathBuf> = get_dir_items(path)?;
+
     paths.sort_by(|a, b| a.to_str().cmp(&b.to_str()));
 
     for path in paths {
         let dir_path = path.clone();
         let dir_path = dir_path.to_str().unwrap();
-        let mut dir_path = home_dir_mark(dir_path);
+        let mut dir_path = home_dir_mark(dir_path).expect("");
 
         let repo = match Repository::open(path) {
             Ok(data) => data,
@@ -79,4 +81,6 @@ fn main() {
             dir_path = String::new();
         }
     }
+
+    Ok(())
 }
