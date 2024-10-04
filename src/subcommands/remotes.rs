@@ -1,9 +1,13 @@
 use std::{collections::HashMap, path::PathBuf};
 
 use anyhow::Result;
+use colored::Colorize;
 use git2::Repository;
 
-use crate::utils::{get_dir_items, get_git_url, home_dir_mark, print_ls_item};
+use crate::utils::{
+    fs::{get_dir_items, home_dir_mark},
+    git::{get_git_url, GitUrl},
+};
 
 fn proc_dir(path: PathBuf, repository_only: bool, remote_only: bool, domain: String, user: String) {
     let dir_path = path.clone();
@@ -77,4 +81,32 @@ pub fn ls_remotes(path: String, repository_only: bool, domain: String, user: Str
     }
 
     Ok(())
+}
+
+pub fn print_ls_item(path: &str, is_repo: bool, name: Option<String>, url: Option<GitUrl>) {
+    if !is_repo {
+        println!("{}", path.white());
+        return;
+    }
+
+    match url {
+        None => {
+            println!("{}", path.red());
+        }
+        Some(url) => {
+            let name = match name {
+                None => String::new(),
+                Some(s) => format!("{:>7}{}", s.red(), ":".white()),
+            };
+
+            let url = format!(
+                "{:>8}{}/{}/{}",
+                name.red(),
+                url.domain.blue(),
+                url.user.yellow(),
+                url.repo.green()
+            );
+            println!("{:<30}{}", path.red(), url)
+        }
+    }
 }
