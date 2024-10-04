@@ -1,4 +1,4 @@
-# Git-ls Command
+# git-ls Command
 
 ## Installation
 
