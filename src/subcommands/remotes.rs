@@ -6,6 +6,7 @@ use colored::Colorize;
 use crate::utils::{
     fs::{get_dir_items, home_dir_mark},
     git::{get_git_url, open_repository, GitUrl},
+    output::{print_item, print_item_with_info},
 };
 
 fn proc_dir(
@@ -21,7 +22,7 @@ fn proc_dir(
 
     let repo = open_repository(path.to_str().unwrap()).inspect_err(|_| {
         if !repository_only {
-            print_ls_item(dir_path.as_str(), false, None, None);
+            print_item(dir_path.as_str(), false);
         }
     })?;
 
@@ -45,14 +46,14 @@ fn proc_dir(
                     return Err(Error::msg("User is not match"));
                 }
 
-                print_ls_item(dir_path.as_str(), true, Some(name.to_string()), Some(url));
+                print_remote_item(dir_path.as_str(), name.to_string(), url);
             }
             None => {
                 if remote_only {
                     return Err(Error::msg("Remotes of this repository is not found"));
                 }
 
-                print_ls_item(dir_path.as_str(), false, None, None);
+                print_item(dir_path.as_str(), false);
             }
         }
 
@@ -84,30 +85,15 @@ pub fn ls_remotes(path: String, repository_only: bool, domain: String, user: Str
     Ok(())
 }
 
-fn print_ls_item(path: &str, is_repo: bool, name: Option<String>, url: Option<GitUrl>) {
-    if !is_repo {
-        println!("{}", path.white());
-        return;
-    }
+fn print_remote_item(path: &str, name: String, url: GitUrl) {
+    let name = format!("{:>7}{}", name.red(), ":".white());
+    let url = format!(
+        "{:>8}{}/{}/{}",
+        name.red(),
+        url.domain.blue(),
+        url.user.yellow(),
+        url.repo.green()
+    );
 
-    match url {
-        None => {
-            println!("{}", path.red());
-        }
-        Some(url) => {
-            let name = match name {
-                None => String::new(),
-                Some(s) => format!("{:>7}{}", s.red(), ":".white()),
-            };
-
-            let url = format!(
-                "{:>8}{}/{}/{}",
-                name.red(),
-                url.domain.blue(),
-                url.user.yellow(),
-                url.repo.green()
-            );
-            println!("{:<30}{}", path.red(), url)
-        }
-    }
+    print_item_with_info(path, true, url);
 }
