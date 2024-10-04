@@ -3,11 +3,7 @@ use anyhow::Result;
 use clap::Parser;
 use git_ls::{
     args::{Args, SubCommands},
-    commands::{
-        none_info::{proc_none_info, NoneInfoArgs},
-        remotes::ls_remotes,
-    },
-    utils::cmd::loop_dirs,
+    commands::{none_info::git_ls, remotes::ls_remotes},
 };
 
 fn main() -> Result<()> {
@@ -15,13 +11,7 @@ fn main() -> Result<()> {
 
     let subcommand = match args.subcommand {
         None => {
-            let _ = loop_dirs(
-                args.path,
-                args.repository_only,
-                NoneInfoArgs {},
-                proc_none_info,
-            )?;
-
+            let _ = git_ls(args.path, args.repository_only)?;
             return Ok(());
         }
         Some(subcommand) => subcommand,
