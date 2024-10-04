@@ -1,3 +1,3 @@
 pub mod args;
-pub mod subcommands;
+pub mod commands;
 pub mod utils;
