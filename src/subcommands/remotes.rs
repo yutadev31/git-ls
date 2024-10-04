@@ -1,30 +1,29 @@
 use std::{collections::HashMap, path::PathBuf};
 
-use anyhow::Result;
+use anyhow::{Error, Result};
 use colored::Colorize;
-use git2::Repository;
 
 use crate::utils::{
     fs::{get_dir_items, home_dir_mark},
-    git::{get_git_url, GitUrl},
+    git::{get_git_url, open_repository, GitUrl},
 };
 
-fn proc_dir(path: PathBuf, repository_only: bool, remote_only: bool, domain: String, user: String) {
+fn proc_dir(
+    path: PathBuf,
+    repository_only: bool,
+    remote_only: bool,
+    domain: String,
+    user: String,
+) -> Result<()> {
     let dir_path = path.clone();
     let dir_path = dir_path.to_str().unwrap();
     let mut dir_path = home_dir_mark(dir_path).expect("");
 
-    let repo = match Repository::open(path) {
-        Ok(data) => data,
-        Err(_) => {
-            if repository_only {
-                return;
-            }
-
+    let repo = open_repository(path.to_str().unwrap()).inspect_err(|_| {
+        if !repository_only {
             print_ls_item(dir_path.as_str(), false, None, None);
-            return;
         }
-    };
+    })?;
 
     let remote_names = repo.remotes().unwrap();
     let remote_names: Vec<&str> = remote_names.iter().map(|s| s.unwrap()).collect();
@@ -39,18 +38,18 @@ fn proc_dir(path: PathBuf, repository_only: bool, remote_only: bool, domain: Str
         match url {
             Some(url) => {
                 if !domain.is_empty() && !domain.eq(&url.domain) {
-                    return;
+                    return Err(Error::msg("Domain is not match"));
                 }
 
                 if !user.is_empty() && !user.eq(&url.user) {
-                    return;
+                    return Err(Error::msg("User is not match"));
                 }
 
                 print_ls_item(dir_path.as_str(), true, Some(name.to_string()), Some(url));
             }
             None => {
                 if remote_only {
-                    return;
+                    return Err(Error::msg("Remotes of this repository is not found"));
                 }
 
                 print_ls_item(dir_path.as_str(), false, None, None);
@@ -59,6 +58,8 @@ fn proc_dir(path: PathBuf, repository_only: bool, remote_only: bool, domain: Str
 
         dir_path = String::new();
     }
+
+    Ok(())
 }
 
 pub fn ls_remotes(path: String, repository_only: bool, domain: String, user: String) -> Result<()> {
@@ -71,7 +72,7 @@ pub fn ls_remotes(path: String, repository_only: bool, domain: String, user: Str
     paths.sort_by(|a, b| a.to_str().cmp(&b.to_str()));
 
     for path in paths {
-        proc_dir(
+        let _ = proc_dir(
             path,
             repository_only,
             remote_only,
