@@ -9,7 +9,7 @@ use super::{
     output::print_item,
 };
 
-pub fn loop_dirs<T: CommandArgs + Clone, F: Fn(&str, Repository, T)>(
+pub fn loop_dirs<T: CommandArgs + Clone, F: Fn(&str, Repository, T) -> Result<()>>(
     path: String,
     repository_only: bool,
     args: T,
@@ -30,7 +30,7 @@ pub fn loop_dirs<T: CommandArgs + Clone, F: Fn(&str, Repository, T)>(
             }
         })?;
 
-        f(dir_path.as_str(), repo, args.clone());
+        let _ = f(dir_path.as_str(), repo, args.clone());
     }
 
     Ok(())
