@@ -83,7 +83,7 @@ pub fn ls_remotes(path: String, repository_only: bool, domain: String, user: Str
     Ok(())
 }
 
-pub fn print_ls_item(path: &str, is_repo: bool, name: Option<String>, url: Option<GitUrl>) {
+fn print_ls_item(path: &str, is_repo: bool, name: Option<String>, url: Option<GitUrl>) {
     if !is_repo {
         println!("{}", path.white());
         return;
