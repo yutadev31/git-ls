@@ -1,12 +1,10 @@
-mod utils;
 use std::{collections::HashMap, path::PathBuf};
 
 use anyhow::Result;
 use clap::Parser;
 use git2::Repository;
-use utils::print_ls_item;
 
-use crate::utils::{get_dir_items, get_git_url, home_dir_mark};
+use git_ls::utils::{get_dir_items, get_git_url, home_dir_mark, print_ls_item};
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
