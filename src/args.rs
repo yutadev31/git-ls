@@ -6,10 +6,10 @@ pub struct Args {
     #[clap(subcommand)]
     pub subcommand: Option<SubCommands>,
 
-    #[arg(default_value_t = String::from("."))]
+    #[arg(global = true, default_value_t = String::from("."))]
     pub path: String,
 
-    #[arg(short('r'), long, default_value_t = false)]
+    #[arg(short('r'), long, global = true, default_value_t = false)]
     pub repository_only: bool,
 }
 
