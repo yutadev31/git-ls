@@ -1,13 +1,22 @@
-# Git-ls Command
+# git-ls Command
+
+This command to display git information like the `ls` command.
 
 ## Installation
 
 To install run:
 
-```Bash
-./install.sh
+```bash
+cargo install --path .
 ```
 
-## Screenshot
+or
 
-![alt text](.github/assets/command.png)
+```bash
+cargo build -r
+
+mkdir -p ~/.local/bin
+cp target/release/git-ls ~/.local/bin
+```
+
+<!-- ## Usage -->
