@@ -37,6 +37,6 @@ pub fn get_git_url(url: &str) -> Option<GitUrl> {
 }
 
 pub fn open_repository(path: &str) -> Result<Repository> {
-    let repo = Repository::open(path).context("Failed open repository")?;
+    let repo = Repository::open(path).context("Failed to open repository")?;
     Ok(repo)
 }
