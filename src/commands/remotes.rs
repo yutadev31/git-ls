@@ -17,9 +17,9 @@ pub struct RemotesCommand {
 }
 
 impl Command for RemotesCommand {
-    fn proc(path: &str, repo: Repository, args: Self) -> Result<()> {
-        let domain = args.domain;
-        let user = args.user;
+    fn proc(self, path: &str, repo: Repository) -> Result<()> {
+        let domain = self.domain;
+        let user = self.user;
         let remote_only = !domain.is_empty() || !user.is_empty();
         let mut path = path;
 

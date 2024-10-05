@@ -10,20 +10,17 @@ use super::{
 };
 
 pub trait Command: Clone {
-    fn run(path: String, repository_only: bool, args: Self) -> Result<()> {
-        let _ = Self::loop_dirs(path, repository_only, args, Self::proc)?;
+    fn run(self, path: String, repository_only: bool) -> Result<()> {
+        let _ = self.loop_dirs(path, repository_only)?;
         Ok(())
     }
 
-    fn loop_dirs<F: Fn(&str, Repository, Self) -> Result<()>>(
-        path: String,
-        repository_only: bool,
-        args: Self,
-        f: F,
-    ) -> Result<()> {
+    fn loop_dirs(self, path: String, repository_only: bool) -> Result<()> {
         let mut paths: Vec<PathBuf> = get_dir_items(path.as_str())?;
 
         paths.sort_by(|a, b| a.to_str().cmp(&b.to_str()));
+
+        let this = self;
 
         for path in paths {
             let dir_path = path.clone();
@@ -32,21 +29,25 @@ pub trait Command: Clone {
 
             let repo = match open_repository(path.to_str().unwrap()).inspect_err(|_| {
                 if !repository_only {
-                    print_item(dir_path.as_str(), false);
+                    this.clone().print_item(dir_path.as_str(), false);
                 }
             }) {
                 Ok(repo) => repo,
                 Err(_) => continue,
             };
 
-            let _ = f(dir_path.as_str(), repo, args.clone());
+            let _ = this.clone().proc(dir_path.as_str(), repo);
         }
 
         Ok(())
     }
 
-    fn proc(path: &str, _: Repository, _: Self) -> Result<()> {
-        print_item(path, true);
+    fn proc(self, path: &str, _: Repository) -> Result<()> {
+        self.print_item(path, true);
         Ok(())
+    }
+
+    fn print_item(self, path: &str, is_repo: bool) {
+        print_item(path, is_repo);
     }
 }

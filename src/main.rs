@@ -12,7 +12,7 @@ fn main() -> Result<()> {
 
     let subcommand = match args.subcommand {
         None => {
-            let _ = DefaultCommand::run(args.path, args.repository_only, DefaultCommand {})?;
+            let _ = DefaultCommand {}.run(args.path, args.repository_only)?;
             return Ok(());
         }
         Some(subcommand) => subcommand,
@@ -20,11 +20,7 @@ fn main() -> Result<()> {
 
     match subcommand {
         SubCommands::Remotes { domain, user } => {
-            let _ = RemotesCommand::run(
-                args.path,
-                args.repository_only,
-                RemotesCommand { domain, user },
-            )?;
+            let _ = RemotesCommand { domain, user }.run(args.path, args.repository_only)?;
         }
     };
 
