@@ -11,7 +11,7 @@ use super::{
 
 pub trait Command: Output + Clone {
     fn run(self, path: String, repository_only: bool) -> Result<()> {
-        let _ = self.loop_dirs(path, repository_only)?;
+        self.loop_dirs(path, repository_only)?;
         Ok(())
     }
 

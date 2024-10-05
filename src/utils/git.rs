@@ -34,7 +34,7 @@ pub fn get_git_url(url: &str) -> Option<GitUrl> {
         });
     }
 
-    return None;
+    None
 }
 
 pub fn open_repository(path: &str) -> Result<Repository> {

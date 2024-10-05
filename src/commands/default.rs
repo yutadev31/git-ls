@@ -7,7 +7,7 @@ pub struct DefaultCommand {}
 
 impl DefaultCommand {
     pub fn new_and_run(path: String, repository_only: bool) -> Result<()> {
-        let _ = Self {}.run(path, repository_only)?;
+        Self {}.run(path, repository_only)?;
         Ok(())
     }
 }
