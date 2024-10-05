@@ -1,4 +1,4 @@
-use anyhow::{Ok, Result};
+use anyhow::Result;
 
 use crate::utils::{cmd::Command, output::Output};
 

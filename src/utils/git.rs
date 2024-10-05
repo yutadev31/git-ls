@@ -1,4 +1,4 @@
-use anyhow::{Context, Ok, Result};
+use anyhow::{Context,  Result};
 use git2::Repository;
 use regex::Regex;
 
