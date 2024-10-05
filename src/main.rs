@@ -12,7 +12,7 @@ fn main() -> Result<()> {
 
     let subcommand = match args.subcommand {
         None => {
-            let _ = DefaultCommand {}.run(args.path, args.repository_only)?;
+            let _ = DefaultCommand::new_and_run(args.path, args.repository_only)?;
             return Ok(());
         }
         Some(subcommand) => subcommand,
