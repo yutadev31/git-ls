@@ -11,11 +11,14 @@ use crate::utils::{
     output::Output,
 };
 
+/// Print remotes of git repository
 #[derive(Clone, Debug, Args)]
 pub struct RemotesCommand {
+    /// Specify the domain
     #[arg(short('d'), long, default_value_t = String::new())]
     pub domain: String,
 
+    /// Specify the username
     #[arg(short('u'), long, default_value_t = String::new())]
     pub user: String,
 }
