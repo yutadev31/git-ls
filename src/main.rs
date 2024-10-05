@@ -3,10 +3,8 @@ use anyhow::Result;
 use clap::Parser;
 use git_ls::{
     args::{Args, SubCommands},
-    commands::{
-        default::git_ls,
-        remotes::{git_ls_with_remotes, RemotesArgs},
-    },
+    commands::{default::DefaultCommand, remotes::RemotesCommand},
+    utils::cmd::Command,
 };
 
 fn main() -> Result<()> {
@@ -14,7 +12,7 @@ fn main() -> Result<()> {
 
     let subcommand = match args.subcommand {
         None => {
-            let _ = git_ls(args.path, args.repository_only)?;
+            let _ = DefaultCommand::run(args.path, args.repository_only, DefaultCommand {})?;
             return Ok(());
         }
         Some(subcommand) => subcommand,
@@ -22,10 +20,10 @@ fn main() -> Result<()> {
 
     match subcommand {
         SubCommands::Remotes { domain, user } => {
-            let _ = git_ls_with_remotes(
+            let _ = RemotesCommand::run(
                 args.path,
                 args.repository_only,
-                RemotesArgs { domain, user },
+                RemotesCommand { domain, user },
             )?;
         }
     };
