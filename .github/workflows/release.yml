@@ -2,7 +2,8 @@ name: Release
 
 on:
   push:
-    branches: ["main"]
+    tags:
+      - "v*.*.*"
 
 env:
   CARGO_TERM_COLOR: always
@@ -35,21 +36,28 @@ jobs:
         run: cargo clippy --all-targets --all-features
       - name: Check formatting
         run: cargo fmt --all --check
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: linux-bin
+          path: target/release/git-ls
+  release:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      discussions: write
+
+    steps:
+      - name: Download packages
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-bin
+          path: ${{github.workspace}}
       - name: Create a Release
-        uses: elgohr/Github-Release-Action@v5
+        uses: softprops/action-gh-release@v2
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          title: MyReleaseMessage
-          tag: MyTag
-
-      - name: Upload Release Asset
-        id: upload-release-asset-linux
-        uses: actions/upload-release-asset@v1.0.2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./src/artifacts/Linux.zip
-          asset_name: go_linux_amd64.zip
-          asset_content_type: application/zip
+          files: |
+            ${{github.workspace}}/linux-bin
