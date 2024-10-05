@@ -1,6 +1,10 @@
 name: Release
 
 on:
+  pull_request:
+    types:
+      - opened
+
   push:
     tags:
       - "v*.*.*"
@@ -42,6 +46,7 @@ jobs:
           name: linux-bin
           path: target/release/git-ls
   release:
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
 
     permissions:
