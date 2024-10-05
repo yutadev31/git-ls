@@ -1,5 +1,7 @@
 use clap::{arg, command, Parser, Subcommand};
 
+use crate::commands::remotes::RemotesCommand;
+
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 pub struct Args {
@@ -15,11 +17,5 @@ pub struct Args {
 
 #[derive(Debug, Subcommand)]
 pub enum SubCommands {
-    Remotes {
-        #[arg(short('d'), long, default_value_t = String::new())]
-        domain: String,
-
-        #[arg(short('u'), long, default_value_t = String::new())]
-        user: String,
-    },
+    Remotes(RemotesCommand),
 }

@@ -2,6 +2,7 @@ use anyhow::{Context, Ok, Result};
 use git2::Repository;
 use regex::Regex;
 
+#[derive(Clone, Debug)]
 pub struct GitUrl {
     pub domain: String,
     pub user: String,

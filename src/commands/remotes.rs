@@ -1,25 +1,46 @@
+use clap::Args;
 use std::collections::HashMap;
 
-use anyhow::{Error, Result};
+use anyhow::Result;
 use colored::Colorize;
 use git2::Repository;
 
 use crate::utils::{
     cmd::Command,
     git::{get_git_url, GitUrl},
-    output::{print_item, print_item_with_info},
+    output::Output,
 };
 
-#[derive(Clone)]
+#[derive(Clone, Debug, Args)]
 pub struct RemotesCommand {
+    #[arg(short('d'), long, default_value_t = String::new())]
     pub domain: String,
+
+    #[arg(short('u'), long, default_value_t = String::new())]
     pub user: String,
 }
 
+impl RemotesCommand {
+    fn print_item_with_remote_url(&self, path: &str, name: String, url: GitUrl) {
+        let name = format!("{:>7}{}", name.red(), ":".white());
+        let url = format!(
+            "{:>8}{}/{}/{}",
+            name.red(),
+            url.domain.blue(),
+            url.user.yellow(),
+            url.repo.green()
+        );
+
+        self.clone().print_item_with_info(path, url);
+    }
+}
+
+impl Output for RemotesCommand {}
+
 impl Command for RemotesCommand {
     fn proc(self, path: &str, repo: Repository) -> Result<()> {
-        let domain = self.domain;
-        let user = self.user;
+        let domain = self.domain.clone();
+        let user = self.user.clone();
         let remote_only = !domain.is_empty() || !user.is_empty();
         let mut path = path;
 
@@ -33,24 +54,25 @@ impl Command for RemotesCommand {
 
         for (name, url) in &remotes {
             let url = get_git_url(url);
+
             match url {
+                None => {
+                    if remote_only {
+                        continue;
+                    }
+
+                    self.clone().print_repo(path);
+                }
                 Some(url) => {
                     if !domain.is_empty() && !domain.eq(&url.domain) {
-                        return Err(Error::msg("Domain is not match"));
+                        continue;
                     }
 
                     if !user.is_empty() && !user.eq(&url.user) {
-                        return Err(Error::msg("User is not match"));
+                        continue;
                     }
 
-                    print_remote_item(path, name.to_string(), url);
-                }
-                None => {
-                    if remote_only {
-                        return Err(Error::msg("Remotes of this repository is not found"));
-                    }
-
-                    print_item(path, false);
+                    self.print_item_with_remote_url(path, name.to_string(), url);
                 }
             }
 
@@ -59,17 +81,4 @@ impl Command for RemotesCommand {
 
         Ok(())
     }
-}
-
-fn print_remote_item(path: &str, name: String, url: GitUrl) {
-    let name = format!("{:>7}{}", name.red(), ":".white());
-    let url = format!(
-        "{:>8}{}/{}/{}",
-        name.red(),
-        url.domain.blue(),
-        url.user.yellow(),
-        url.repo.green()
-    );
-
-    print_item_with_info(path, true, url);
 }

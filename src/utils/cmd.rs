@@ -6,10 +6,10 @@ use git2::Repository;
 use super::{
     fs::{get_dir_items, home_dir_mark},
     git::open_repository,
-    output::print_item,
+    output::Output,
 };
 
-pub trait Command: Clone {
+pub trait Command: Output + Clone {
     fn run(self, path: String, repository_only: bool) -> Result<()> {
         let _ = self.loop_dirs(path, repository_only)?;
         Ok(())
@@ -29,7 +29,7 @@ pub trait Command: Clone {
 
             let repo = match open_repository(path.to_str().unwrap()).inspect_err(|_| {
                 if !repository_only {
-                    this.clone().print_item(dir_path.as_str(), false);
+                    this.clone().print_dir(dir_path.as_str());
                 }
             }) {
                 Ok(repo) => repo,
@@ -43,11 +43,7 @@ pub trait Command: Clone {
     }
 
     fn proc(self, path: &str, _: Repository) -> Result<()> {
-        self.print_item(path, true);
+        self.print_repo(path);
         Ok(())
-    }
-
-    fn print_item(self, path: &str, is_repo: bool) {
-        print_item(path, is_repo);
     }
 }
