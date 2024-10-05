@@ -7,16 +7,16 @@ use crate::utils::{
 };
 
 #[derive(Clone)]
-pub struct NoneInfoArgs {}
+pub struct DefaultArgs {}
 
-impl CommandArgs for NoneInfoArgs {}
+impl CommandArgs for DefaultArgs {}
 
 pub fn git_ls(path: String, repository_only: bool) -> Result<()> {
-    let _ = loop_dirs(path, repository_only, NoneInfoArgs {}, proc_none_info)?;
+    let _ = loop_dirs(path, repository_only, DefaultArgs {}, proc_none_info)?;
     Ok(())
 }
 
-fn proc_none_info(path: &str, _: Repository, _: NoneInfoArgs) -> Result<()> {
+fn proc_none_info(path: &str, _: Repository, _: DefaultArgs) -> Result<()> {
     print_item(path, true);
     Ok(())
 }

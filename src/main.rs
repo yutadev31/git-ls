@@ -4,7 +4,7 @@ use clap::Parser;
 use git_ls::{
     args::{Args, SubCommands},
     commands::{
-        none_info::git_ls,
+        default::git_ls,
         remotes::{git_ls_with_remotes, RemotesArgs},
     },
 };

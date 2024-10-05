@@ -1,2 +1,2 @@
-pub mod none_info;
+pub mod default;
 pub mod remotes;
