@@ -41,7 +41,7 @@ jobs:
       - name: Check formatting
         run: cargo fmt --all --check
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: linux-bin
           path: target/release/git-ls

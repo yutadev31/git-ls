@@ -56,28 +56,29 @@ impl Command for RemotesCommand {
         }
 
         for (name, url) in &remotes {
-            let url = get_git_url(url);
-
-            match url {
-                None => {
-                    if remote_only {
-                        continue;
-                    }
-
-                    self.clone().print_repo(path);
-                }
-                Some(url) => {
-                    if !domain.is_empty() && !domain.eq(&url.domain) {
-                        continue;
-                    }
-
-                    if !user.is_empty() && !user.eq(&url.user) {
-                        continue;
-                    }
-
-                    self.print_item_with_remote_url(path, name.to_string(), url);
-                }
-            }
+            self.clone().print_item_with_info(path, url.to_string());
+            // let url = get_git_url(url);
+            //
+            // match url {
+            //     None => {
+            //         if remote_only {
+            //             continue;
+            //         }
+            //
+            //         self.clone().print_repo(path);
+            //     }
+            //     Some(url) => {
+            //         if !domain.is_empty() && !domain.eq(&url.domain) {
+            //             continue;
+            //         }
+            //
+            //         if !user.is_empty() && !user.eq(&url.user) {
+            //             continue;
+            //         }
+            //
+            //         self.print_item_with_remote_url(path, name.to_string(), url);
+            //     }
+            // }
 
             path = "";
         }
